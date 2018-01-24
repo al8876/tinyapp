@@ -1,17 +1,6 @@
 const http = require("http");
 const PORT = 8080;
 
-// a function to create random string of 6 characters
-function generateRandomString() {
-  var string = '';
-  var possible = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
-
-  for (var i = 0; i < 6; i++)
-    string += possible.charAt(Math.floor(Math.random() * possible.length));
-
-  return string;
-}
-
 
 // a function which handles requests and sends response
 function requestHandler(request, response) {

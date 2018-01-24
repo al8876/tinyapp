@@ -7,6 +7,16 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+function generateRandomString() {
+  var string = '';
+  var possible = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+
+  for (var i = 0; i < 6; i++)
+    string += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return string;
+}
+
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -31,7 +41,13 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);
-  res.send("Ok");
+  let newLongURL = req.body.longURL;
+  let newShortURL = generateRandomString();
+  urlDatabase[newShortURL] = newLongURL;
+  // updates the urlDatabase object
+
+  let templateVars = { shortURL: newShortURL, longURL: newLongURL };
+  res.redirect("/urls/" + newShortURL)
 });
 
 app.get('/urls/:id', (req, res) => {
