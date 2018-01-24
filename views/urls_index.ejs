@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TinyApp</title>
+</head>
+<body>
+  <h2>Shortened URL Table</h2>
+    <table border="black"; cellpadding="10px">
+      <tr align="left">
+        <th><b>Long URL</b></th>
+        <th><b>Short URL</b></th>
+      </tr>
+      <tr>
+        <% for (var key in urls) { %>
+         <td><%= urls[key] %></td>
+         <td><%= key %></td>
+      </tr>
+      <% } %>
+      <tr>
+    </table>
+  <br>
+
+<a href="/">Link to shorten URL</a>
+
+</body>
+</html>
