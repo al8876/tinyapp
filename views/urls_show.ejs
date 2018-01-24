@@ -15,9 +15,13 @@
       <tr>
          <td><%= longURL %></td>
          <td><%= shortURL %></td>
+         <td>
+          <form action='/urls/<%= shortURL %>/update' method="POST">
+            <input type="text" name='newLongURL' placeholder="New URL">
+            <button type='submit'>Update</button>
+          </form>
+         </td>
       </tr>
-      <tr>
     </table>
-  <br>
 </body>
 </html>
