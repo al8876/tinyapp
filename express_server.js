@@ -22,6 +22,12 @@ app.get('/hello', (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+app.get('/urls/:id', (req, res) => {
+  let templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id] };
+  console.log(templateVars);
+  res.render('urls_show', templateVars);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

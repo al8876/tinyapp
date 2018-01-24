@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>TinyApp</title>
+    <title></title>
     <% include ./partials/_header %>
 </head>
 
 <body>
-  <h2>Shortened URL Table</h2>
+  <h2>Shortened URL</h2>
     <table border="black"; cellpadding="10px">
       <tr align="left">
         <th><b>Long URL</b></th>
         <th><b>Short URL</b></th>
       </tr>
       <tr>
-        <% for (var key in urls) { %>
-         <td><%= urls[key] %></td>
-         <td><%= key %></td>
+         <td><%= longURL %></td>
+         <td><%= shortURL %></td>
       </tr>
-      <% } %>
       <tr>
     </table>
   <br>
-
-<a href="/">Link to shorten URL</a>
-
 </body>
 </html>
