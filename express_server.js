@@ -47,7 +47,7 @@ app.post('/urls/:id/delete', (req, res) => {
 app.post('/urls/:id/update', (req, res) => {
   urlDatabase[req.params.id] = req.body.newLongURL
   console.log(req.body.newLongURL);
-  res.redirect('/urls/' + req.params.id)
+  res.redirect(301, '/urls/' + req.params.id)
 })
 
 app.post("/urls", (req, res) => {
