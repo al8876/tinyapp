@@ -11,18 +11,21 @@
       <tr align="left">
         <th><b>Long URL</b></th>
         <th><b>Short URL</b></th>
+        <!-- <th>Delete</th> -->
       </tr>
       <tr>
         <% for (var key in urls) { %>
          <td><%= urls[key] %></td>
          <td><%= key %></td>
+       <!--   <td><form method="POST" action=`/urls/b2xVn2/delete`><button type="submit">Delete</button></form></td> -->
+       <td><form action='/urls/<%= key %>/delete' method='post'><button type="submit">Delete</button></td>
       </tr>
       <% } %>
       <tr>
     </table>
   <br>
 
-<a href="/">Link to shorten URL</a>
+<a href="/urls/new">Link to shorten URL</a>
 
 </body>
 </html>
