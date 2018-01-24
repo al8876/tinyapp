@@ -17,8 +17,8 @@
         <% for (var key in urls) { %>
          <td><%= urls[key] %></td>
          <td><%= key %></td>
-       <!--   <td><form method="POST" action=`/urls/b2xVn2/delete`><button type="submit">Delete</button></form></td> -->
-       <td><form action='/urls/<%= key %>/delete' method='post'><button type="submit">Delete</button></td>
+         <td><button><a href="/urls/<%= key %>/">Edit</a></button></td>
+         <td><form action='/urls/<%= key %>/delete' method='post'><button type="submit">Delete</button></td>
       </tr>
       <% } %>
     </table>
