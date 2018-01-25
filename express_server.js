@@ -52,26 +52,40 @@ const findByEmail = (email) => {
   return false;
 };
 
+const findUserByID = (user_id) => {
+  for (let key in users) {
+    const user = users[key];
+    if (user.id === user_id) {
+      return user;
+    }
+  }
+  return false;
+};
+
 // middleware
 
-app.use(function(req, res, next) {
-  res.locals.user = users[req.cookies.user_id] || false;
-  next();
-});
+// app.use(function(req, res, next) {
+//   res.locals.user = users[req.cookies.user_id] || false;
+//   next();
+// });
 
 // routes
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new")
+  let templateVars = {
+    urls: urlDatabase,
+    user: findUserByID(req.cookies.user_id)
+  }
+  res.render("urls_new", templateVars)
 });
 
 app.get('/urls', (req, res) => {
-  const user = users;
   let templateVars = {
     urls: urlDatabase,
-    user: user
+    user: findUserByID(req.cookies.user_id)
   };
   console.log(req.cookies);
+  console.log(users);
   res.render("urls_index", templateVars);
 });
 
@@ -90,7 +104,6 @@ app.post('/urls/:id/delete', (req, res) => {
 
 app.post('/urls/:id/update', (req, res) => {
   urlDatabase[req.params.id] = req.body.newLongURL;
-  console.log(req.body.newLongURL);
   res.redirect(301, '/urls/' + req.params.id)
 });
 
@@ -98,7 +111,7 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = findByEmail(email);
   if (user) {
-    res.cookie('user_id', user);
+    res.cookie('user_id', user.id);
     res.redirect('/urls');
   } else {
     res.status(400).render('user not found');
@@ -114,10 +127,11 @@ app.post("/urls", (req, res) => {
   {
     shortURL: newShortURL,
     longURL: newLongURL,
+    user: findUserByID(req.cookies.user_id)
   };
-  res.redirect("/urls/" + newShortURL)
+  res.redirect("/urls/" + newShortURL);
 });
-
+ 
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id')
   res.redirect('urls')
@@ -128,13 +142,16 @@ app.post('/register', (req, res) => {
   let newUserEmail = req.body.email;
   let newUserPassword = req.body.password;
   if (newUserEmail === '' || newUserPassword === '') {
-    res.status(400).render('400');
+    res.status(400).send("enter email or password");
+
+  } else if (newUserEmail === findByEmail(newUserEmail).email) {
+    res.status(400).send("email already exists")
+
   } else {
     users[newUserID] = {}
     users[newUserID].id = newUserID;  
     users[newUserID].email = newUserEmail;
     users[newUserID].password = newUserPassword;
-    console.log(users);
     res.cookie('user_id', newUserID)
     res.redirect('/urls')
   }
@@ -147,14 +164,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 
 app.get('/urls/:id', (req, res) => {
-  const user = users
   let templateVars =
   {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
-    user: users,
+    user: findUserByID(req.cookies.user_id)
   };
-  console.log(templateVars);
   res.render('urls_show', templateVars);
 });
 
