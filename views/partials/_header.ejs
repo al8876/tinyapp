@@ -3,26 +3,16 @@
     <title>This is the header</title>
   </head>
   <body>
+    <% if (!username) { %>
     <form action="/urls/login" method="POST">
-      <input type="text" placeholder="username">
+      <input type="text" name="username" placeholder="username">
+        <button type="submit">Submit</button>
     </form>
+    <% } else { %>
+    <p>You are logged in as <%= username %></p>
+    <form action="/logout" method="POST">
+      <button type="submit">Logout</button>
+    </form>
+    <% } %>
   </body>
 </html>
-
-<nav class="navbar navbar-default" role="navigation">
-<div class="container-fluid">
-
-  <div class="navbar-header">
-    <a class="navbar-brand" href="#">
-      <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span>
-      EJS Is Fun!
-    </a>
-
-    <ul class="nav navbar-nav">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-    </ul>
-  </div>
-
-</div>
-</nav>
