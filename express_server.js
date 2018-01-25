@@ -91,13 +91,17 @@ app.post('/register', (req, res) => {
   let newUserID = generateRandomString();
   let newUserEmail = req.body.email;
   let newUserPassword = req.body.password;
-  users[newUserID] = {}
-  users[newUserID].id = newUserPassword;  
-  users[newUserID].email = newUserEmail;
-  users[newUserID].password = newUserPassword;
-  console.log(users);
-  res.cookie('username', req.body.email)
-  res.redirect('/urls')
+  if (newUserEmail === '' || newUserPassword === '') {
+    res.status(400).render('400');
+  } else {
+    users[newUserID] = {}
+    users[newUserID].id = newUserID;  
+    users[newUserID].email = newUserEmail;
+    users[newUserID].password = newUserPassword;
+    console.log(users);
+    res.cookie('username', req.body.email)
+    res.redirect('/urls')
+  }
 })
 
 app.get("/u/:shortURL", (req, res) => {
