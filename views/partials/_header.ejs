@@ -3,16 +3,16 @@
     <title>This is the header</title>
   </head>
   <body>
-    <% if (!username) { %>
-    <form action="/urls/login" method="POST">
-      <input type="text" name="username" placeholder="username">
-        <button type="submit">Submit</button>
-    </form>
+    <% if (user) { %>
+      <p>You are logged in as <%= user.email %></p>
+      <form action="/logout" method="POST">
+        <button type="submit">Logout</button>
+      </form>
     <% } else { %>
-    <p>You are logged in as <%= username %></p>
-    <form action="/logout" method="POST">
-      <button type="submit">Logout</button>
-    </form>
+      <form action="/login" method="POST">
+        <input type="text" name="email" placeholder="email">
+        <button type="submit">Submit</button>
+      </form>
     <% } %>
   </body>
 </html>
