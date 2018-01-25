@@ -22,6 +22,19 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+var users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "123456"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "abcdefg"
+  }
+}
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new")
 });
@@ -36,8 +49,8 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-
-})
+  res.render("registration");
+});
 
 app.post('/urls/:id/delete', (req, res) => {
   delete urlDatabase[req.params.id];
@@ -73,6 +86,19 @@ app.post('/logout/', (req, res) => {
   res.clearCookie('username')
   res.redirect('urls')
 });
+
+app.post('/register', (req, res) => {
+  let newUserID = generateRandomString();
+  let newUserEmail = req.body.email;
+  let newUserPassword = req.body.password;
+  users[newUserID] = {}
+  users[newUserID].id = newUserPassword;  
+  users[newUserID].email = newUserEmail;
+  users[newUserID].password = newUserPassword;
+  console.log(users);
+  res.cookie('username', req.body.email)
+  res.redirect('/urls')
+})
 
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL]
