@@ -7,20 +7,29 @@
 
 <body>
   <h2>Shortened URL Table</h2>
-    <table border="black"; cellpadding="10px">
-      <tr align="left">
-        <th><b>Long URL</b></th>
-        <th><b>Short URL</b></th>
-      </tr>
-      <tr>
-        <% for (var key in urls) { %>
-         <td><%= urls[key].url %></td>
-         <td><%= key %></td>
-         <td><button><a href="/urls/<%= key %>/">Edit</a></button></td>
-         <td><form action='/urls/<%= key %>/delete' method='post'><button type="submit">Delete</button></td>
-      </tr>
-      <% } %>
-    </table>
+    <h3>Your URL List</h3>
+      <table border="black"; cellpadding="10px">
+        <tr align="left">
+          <th><b>Long URL</b></th>
+          <th><b>Short URL</b></th>
+        </tr>
+        <% if (user) { %>
+          <tr>
+            <% for (let key in urls) { %>
+              <% if (urls[key].userID === user) { %>
+              <td><%= urls[key].url %></td>
+              <td><a href="/u/<%= key %>"><%= key %></a></td>
+              <td><button><a href="/urls/<%= key %>/">Edit</a></button></td>
+              <td><form action='/urls/<%= key %>/delete' method='post'><button type="submit">Delete</button></td>
+              <% } %>
+          </tr>
+          <% } %>
+        <% } else { %>
+          <tr>
+            <td>Log in or register to too see your links</td>
+          </tr>
+        <% } %>
+      </table>
   <br>
 
 <a href="/urls/new">Link to shorten URL</a>
