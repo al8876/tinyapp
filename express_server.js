@@ -1,10 +1,7 @@
 const express = require('express');
 const app = express();
-
 const cookieParser = require('cookie-parser');
-
 const PORT = process.env.PORT || 8080;
-
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -22,12 +19,12 @@ function generateRandomString() {
   return string;
 }
 
-let urlDatabase = {
+const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-let users = {
+const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
@@ -41,21 +38,31 @@ let users = {
   "test": {
     id: "test",
     email: "t@t.com",
-    password: "doggy"
+    password: "test"
   }
 }
 
 // helpers
 
-// const findByEmail = function(email) {
-//   for (let key in users) {
-//     const user = users[key];
-//     if (user.email === email) {
-//       return user;
-//     }
-//   }
-//   return false;
-// };
+const findByEmail = (email) => {
+  for (let key in users) {
+    const user = users[key];
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return false;
+};
+
+const findUserByID = (user_id) => {
+  for (let key in users) {
+    const user = users[key];
+    if (user.id === user_id) {
+      return user;
+    }
+  }
+  return false;
+};
 
 // middleware
 
@@ -67,29 +74,33 @@ let users = {
 // routes
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new")
+  let templateVars = {
+    urls: urlDatabase,
+    user: findUserByID(req.cookies.user_id)
+  }
+  res.render("urls_new", templateVars)
 });
 
 app.get('/urls', (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    user: {users}
+    user: findUserByID(req.cookies.user_id)
   };
   console.log(req.cookies);
+  console.log(users);
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  let newLongURL = req.body.longURL;
-  let newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = newLongURL;
-  let templateVars =
-  {
-    shortURL: newShortURL,
-    longURL: newLongURL,
-    user_id: {users}
+app.get('/login', (req, res) => {
+  let templateVars = {
+    urls: urlDatabase,
+    user: findUserByID(req.cookies.user_id)
   };
-  res.redirect("/urls/" + newShortURL);
+  res.render('login', templateVars)
+})
+
+app.get('/register', (req, res) => {
+  res.render("registration");
 });
 
 app.get('/login', (req, res) => {
@@ -109,16 +120,31 @@ app.post('/urls/:id/update', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = findByEmail(email);
-  if (user) {
-    res.cookie('user_id', user);
+  if (password === user.password && email === user.email) {
+    res.cookie('user_id', user.id);
     res.redirect('/urls');
   } else {
-    res.status(400).render('user not found');
+    res.status(403).send('user not found');
   }
 });
 
-app.get('/register', (req, res) => {
-  res.render("registration");
+app.post("/urls", (req, res) => {
+  let newLongURL = req.body.longURL;
+  let newShortURL = generateRandomString();
+  urlDatabase[newShortURL] = newLongURL;
+
+  let templateVars =
+  {
+    shortURL: newShortURL,
+    longURL: newLongURL,
+    user: findUserByID(req.cookies.user_id)
+  };
+  res.redirect("/urls/" + newShortURL);
+});
+ 
+app.post('/logout', (req, res) => {
+  res.clearCookie('user_id')
+  res.redirect('urls')
 });
 
 app.post('/register', (req, res) => {
@@ -126,18 +152,18 @@ app.post('/register', (req, res) => {
   let newUserEmail = req.body.email;
   let newUserPassword = req.body.password;
   if (newUserEmail === '' || newUserPassword === '') {
-    res.status(400).render('400');
-  } else if (newUserEmail === findByEmail(newUserEmail)){
-    res.status(400).render('email already exists')
+    res.status(400).send("enter email or password");
+
+  } else if (newUserEmail === findByEmail(newUserEmail).email) {
+    res.status(400).send("email already exists")
+
   } else {
     users[newUserID] = {}
     users[newUserID].id = newUserID;  
     users[newUserID].email = newUserEmail;
     users[newUserID].password = newUserPassword;
-    console.log(users);
-    res.cookie('user_id', {users});
-    console.log(users);
-    res.redirect('/urls');
+    res.cookie('user_id', newUserID)
+    res.redirect('/urls')
   }
 })
 
@@ -159,10 +185,13 @@ app.get('/urls/:id', (req, res) => {
   {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
-    user_id: {users},
+    user: findUserByID(req.cookies.user_id)
   };
-  console.log(templateVars);
   res.render('urls_show', templateVars);
+});
+
+app.get('/register', (req, res) => {
+  res.render("registration");
 });
 
 app.listen(PORT, () => {
