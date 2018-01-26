@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -40,18 +41,18 @@ const urlDatabase = {
 const users = {
   "userRandomID": {
     id: "userRandomID",
-    email: "user@example.com",
-    password: "123456"
+    email: "e@e.com",
+    password: "$2a$12$scoYVH8x7lOTXtL24QEp3OXBExWcgk9tl.IIc2jWFcq4/2bzWxfxK"
   },
   "alex": {
     id: "alex",
     email: "s@s.com",
-    password: "test"
+    password: "$2a$12$scoYVH8x7lOTXtL24QEp3OXBExWcgk9tl.IIc2jWFcq4/2bzWxfxK"
   },
   "test": {
     id: "test",
     email: "t@t.com",
-    password: "test"
+    password: "$2a$12$scoYVH8x7lOTXtL24QEp3OXBExWcgk9tl.IIc2jWFcq4/2bzWxfxK"
   }
 }
 
@@ -93,16 +94,6 @@ const findUserEmailByID = (user_id) => {
   return false;
 };
 
-// const urlsForUserID = (user_id) => {
-//   for (let key in urlDatabase) {
-//     const url = urlDatabase[key];
-//     if (url.userID === user_id) {
-//       return url;
-//     }
-//   }
-//   return false;
-// };
-
 // middleware
 
 // app.use(function(req, res, next) {
@@ -132,6 +123,7 @@ app.get('/urls', (req, res) => {
     userEmail: findUserEmailByID(req.cookies.user_id)
   }; 
   res.render("urls_index", templateVars);
+  console.log(users)
 });
 
 app.get('/login', (req, res) => {
@@ -147,17 +139,6 @@ app.get('/register', (req, res) => {
   res.render("registration");
 });
 
-app.get('/login', (req, res) => {
-  let templateVars =
-  {
-    shortURL: newShortURL,
-    longURL: newLongURL,
-    user: findUserByID(req.cookies.user_id),
-    userEmail: findUserEmailByID(req.cookies.user_id)
-  };
-  res.render('login', templateVars)
-})
-
 app.post('/urls/:id/delete', (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls')
@@ -169,10 +150,23 @@ app.post('/urls/:id/update', (req, res) => {
   res.redirect(301, '/urls/' + req.params.id)
 });
 
+// app.post('/login', (req, res) => {
+//   const { email, password } = req.body;
+//   const user = findByEmail(email);
+//   if (password === user.password && email === user.email) {
+//     res.cookie('user_id', user.id);
+//     res.redirect('/urls');
+//   } else {
+//     res.status(403).send('user not found');
+//   }
+// });
+
+// adding hash compare function to password
+
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = findByEmail(email);
-  if (password === user.password && email === user.email) {
+  if (bcrypt.compareSync(password, user.password) && email === user.email) {
     res.cookie('user_id', user.id);
     res.redirect('/urls');
   } else {
@@ -205,6 +199,7 @@ app.post('/register', (req, res) => {
   let newUserID = generateRandomString();
   let newUserEmail = req.body.email;
   let newUserPassword = req.body.password;
+  let hashedPassword = bcrypt.hashSync(newUserPassword, 12);
   if (newUserEmail === '' || newUserPassword === '') {
     res.status(400).send("enter email or password");
 
@@ -215,7 +210,7 @@ app.post('/register', (req, res) => {
     users[newUserID] = {}
     users[newUserID].id = newUserID;  
     users[newUserID].email = newUserEmail;
-    users[newUserID].password = newUserPassword;
+    users[newUserID].password = hashedPassword;
     res.cookie('user_id', newUserID)
     res.redirect('/urls')
   }
