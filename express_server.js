@@ -90,7 +90,11 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('login')
+  let templateVars = {
+    urls: urlDatabase,
+    user: findUserByID(req.cookies.user_id)
+  };
+  res.render('login', templateVars)
 })
 
 app.get('/register', (req, res) => {
@@ -110,11 +114,11 @@ app.post('/urls/:id/update', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = findByEmail(email);
-  if (user) {
+  if (password === user.password && email === user.email) {
     res.cookie('user_id', user.id);
     res.redirect('/urls');
   } else {
-    res.status(400).render('user not found');
+    res.status(403).send('user not found');
   }
 });
 
@@ -173,6 +177,9 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.get('/register', (req, res) => {
+  res.render("registration");
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
