@@ -7,7 +7,6 @@
 
 <body>
   <% if (user === urlDatabase[shortURL].userID) { %>
-
   <h2>Shortened URL</h2>
     <table border="black"; cellpadding="10px">
       <tr align="left">
@@ -28,9 +27,7 @@
     <% } else { %>
       <p>You are not a registered owner of this URL</p>
     <% } %>
-
-    <form action="/urls" method="GET">
-      <button type="submit">Go Back</button>
-    </form>
+    <br>
+    <a href="/urls"><button type="submit">Go Back 🔙</button></a>
 </body>
 </html>
