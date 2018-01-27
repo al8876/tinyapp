@@ -121,8 +121,6 @@ app.get('/urls', (req, res) => {
     userEmail: findUserEmailByID(req.session.user_id)
   }; 
   res.render("urls_index", templateVars);
-  // TEST CONSOLE LOG
-  console.log(users)
 });
 
 app.get('/login', (req, res) => {
@@ -134,13 +132,27 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars)
 });
 
-app.get('/register', (req, res) => {
-  res.render("registration");
-});
-
 app.post('/urls/:id/delete', (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls')
+});
+
+app.get('/urls/:id/delete', (req, res) => {
+  let user = req.session.user_id;
+  let shortURL = req.params.id;
+  if (urlDatabase[shortURL].userID === user) { 
+    delete urlDatabase[req.params.id];
+    res.redirect('/urls')
+  } else {
+    let templateVars = {
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id].url,
+    user: findUserByID(req.session.user_id),
+    userEmail: findUserEmailByID(req.session.user_id),
+    urlDatabase: urlDatabase
+    }
+    res.render('urls_show',templateVars)
+  }
 });
 
 app.post('/urls/:id/update', (req, res) => {
@@ -157,7 +169,7 @@ app.post('/login', (req, res) => {
   } 
   const user = findByEmail(email);
   if (!user) {
-    res.send("bad credentials");
+    res.send("Error: Account does not exist");
     return;
   }
   if (bcrypt.compareSync(password, user.password) && email === user.email) {
@@ -182,11 +194,6 @@ app.post("/urls", (req, res) => {
     userEmail: findUserEmailByID(req.session.user_id)
   };
   res.redirect("/urls/" + newShortURL);
-});
- 
-app.post('/logout', (req, res) => {
-  req.session = null;
-  res.redirect('/urls')
 });
 
 app.post('/register', (req, res) => {
@@ -217,6 +224,11 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:id', (req, res) => {
+  let url = req.params.id;
+  if (!urlDatabase[url]) {
+    res.status(400).send("This short URL does not exist!")
+    return;
+  } 
   let templateVars =
   {
     shortURL: req.params.id,
@@ -228,11 +240,21 @@ app.get('/urls/:id', (req, res) => {
   if (req.session.user_id) { 
     res.render("urls_show", templateVars)
   } else {
-    res.render('login',templateVars)
-  }});
+    res.render('new_user',templateVars)
+  }
+});
 
 app.get('/register', (req, res) => {
-  res.render("registration");
+  if (req.session.user_id) {
+    res.redirect('/urls');  
+  } else {
+    res.render("register");
+  }
+});
+
+app.post('/logout', (req, res) => {
+  req.session = null;
+  res.redirect('/urls')
 });
 
 app.listen(PORT, () => {
