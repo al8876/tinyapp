@@ -206,6 +206,7 @@ app.post('/register', (req, res) => {
   let newUserEmail = req.body.email;
   let newUserPassword = req.body.password;
   let hashedPassword = bcrypt.hashSync(newUserPassword, 12);
+
   if (newUserEmail === '' || newUserPassword === '') {
     res.status(400).send("enter email or password");
 
@@ -268,9 +269,4 @@ app.post('/logout', (req, res) => {
 // APP LISTENING 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-});
-
-app.get('/test', (req, res) => {
-  console.log(users);
-  console.log(urlDatabase);
 });
