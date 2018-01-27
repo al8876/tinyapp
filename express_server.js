@@ -1,4 +1,4 @@
-// Imported packages
+// IMPORTED PACKAGES
 
 const express = require('express');
 const app = express();
@@ -15,8 +15,9 @@ app.use(cookieSession({
 
 app.set("view engine", "ejs");
 
-// Data objects
+// DATA OBJECTS
 
+// Database for URLs
 const urlDatabase = {
   "b2xVn2": {
     url: "http://www.lighthouselabs.ca",
@@ -28,6 +29,7 @@ const urlDatabase = {
   }
 };
 
+// Database for users
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -46,8 +48,9 @@ const users = {
   }
 };
 
-// helpers
+// HELPER FUNCTIONS
 
+// function to find user using given email
 const findByEmail = (email) => {
   for (let key in users) {
     const user = users[key];
@@ -58,6 +61,7 @@ const findByEmail = (email) => {
   return false;
 };
 
+// function to find user.id using given user ID
 const findUserByID = (userID) => {
   for (let key in users) {
     const user = users[key];
@@ -68,6 +72,7 @@ const findUserByID = (userID) => {
   return false;
 };
 
+// function to find user.email given user ID
 const findUserEmailByID = (userID) => {
   for (let key in users) {
     const user = users[key];
@@ -78,17 +83,19 @@ const findUserEmailByID = (userID) => {
   return false;
 };
 
+// Function to generate random string for user ID
 function generateRandomString() {
   var string = '';
   var possible = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
   for (var i = 0; i < 6; i++) {
     string += possible.charAt(Math.floor(Math.random() * possible.length));
-    return string;
   }
-}
+  return string;
+};
 
-// routes
+// ROUTES
 
+// home page -> If logged in redirects to /urls to show shortened URLs. Else redirect to login page
 app.get('/', (req, res) => {
   if (req.session.user_id) {
     res.redirect('/urls');
@@ -97,6 +104,7 @@ app.get('/', (req, res) => {
   }
 });
 
+// takes user to create new shortened URL page -> if not logged in, takes to new user page
 app.get("/urls/new", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
@@ -110,6 +118,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+// rendered urls_new filters user to show individual shortened URLs using EJS
 app.get('/urls', (req, res) => {
   let templateVars = {
     urls: urlDatabase,
@@ -119,6 +128,7 @@ app.get('/urls', (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// renders login page
 app.get('/login', (req, res) => {
   let templateVars = {
     urls: urlDatabase,
@@ -128,11 +138,13 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars);
 });
 
+// Delete URL data from urlDatabase
 app.post('/urls/:id/delete', (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
 
+// User can delete URL data from urlDatabase if URL belongs to user -> Else returns error
 app.get('/urls/:id/delete', (req, res) => {
   let user = req.session.user_id;
   let shortURL = req.params.id;
@@ -151,12 +163,14 @@ app.get('/urls/:id/delete', (req, res) => {
   }
 });
 
+// User can update the long URL to the urlDatabase -> maintains same short URL
 app.post('/urls/:id/update', (req, res) => {
   urlDatabase[req.params.id].url = req.body.newLongURL;
   urlDatabase[req.params.id].userID = req.session.user_id;
   res.redirect(301, '/urls/' + req.params.id);
 });
 
+// Login with proper credential
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   if (!password) {
@@ -176,22 +190,17 @@ app.post('/login', (req, res) => {
   }
 });
 
+// New user can create new short URLs by entering long URL -> Redirect to short URL edit page
 app.post("/urls", (req, res) => {
   let newLongURL = req.body.longURL;
   let newShortURL = generateRandomString();
   urlDatabase[newShortURL] = {};
   urlDatabase[newShortURL].url = newLongURL;
   urlDatabase[newShortURL].userID = req.session.user_id;
-  let templateVars =
-  {
-    shortURL: newShortURL,
-    longURL: newLongURL,
-    user: findUserByID(req.session.user_id),
-    userEmail: findUserEmailByID(req.session.user_id)
-  };
   res.redirect("/urls/" + newShortURL);
 });
 
+// New user created and added to the user database. Conditional on unique email.
 app.post('/register', (req, res) => {
   let newUserID = generateRandomString();
   let newUserEmail = req.body.email;
@@ -213,11 +222,13 @@ app.post('/register', (req, res) => {
   }
 });
 
+// Redirect to corresponding long URL based on short URL in address bar
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL].url;
   res.redirect(longURL);
 });
 
+// Allows user to edit short URL parameters given they are URL owner
 app.get('/urls/:id', (req, res) => {
   let url = req.params.id;
   if (!urlDatabase[url]) {
@@ -239,6 +250,7 @@ app.get('/urls/:id', (req, res) => {
   }
 });
 
+// User taken to registration page if NOT a user -> Else redirected to homepage
 app.get('/register', (req, res) => {
   if (req.session.user_id) {
     res.redirect('/urls');
@@ -247,11 +259,18 @@ app.get('/register', (req, res) => {
   }
 });
 
+// Logout button -> Clears cookies from browser and takes back to homepage
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
+// APP LISTENING 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
+});
+
+app.get('/test', (req, res) => {
+  console.log(users);
+  console.log(urlDatabase);
 });
